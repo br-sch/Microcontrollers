@@ -1,0 +1,25 @@
+// C++ code
+//
+/*
+  Complete this program to toggle on pin 13 every 2-3 seconds of the Arduino (the
+  built-in LED) - HIGH/LOW (without using "delay").
+*/
+
+void setup()
+{
+  DDRB |= 0b00100000; // Set Pin 13 as OUTPUT (work on DDRB)
+}
+
+void loop()
+{
+  PORTB |= 0b00100000; // Toggle Pin 13 - HIGH
+  long i=1000000;  //Delay - What value should be here?? (for 2-3) seconds delay?
+  do (i--);
+  while (i != 0);
+
+  PORTB &= ~0b00100000; // Toggle Pin 13 - LOW
+  i=1000000;;  //Delay - What value should be here?? (for 2-3) seconds delay?
+  do (i--);
+  while (i != 0);
+
+}

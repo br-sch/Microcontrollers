@@ -1,0 +1,56 @@
+unsigned int timerCount = 0;
+
+void setup()
+{
+  // Set pin 13 (PB5) as an output
+  DDRB |= (1 << DDB5);
+
+  // Disable interrupts
+  cli();
+
+  // Clear Timer1 control registers
+  TCCR1A = 0;
+  TCCR1B = 0;
+
+  // Set Timer1 counter value to 0
+  TCNT1 = 0;
+
+  // Set Timer1 prescaler to 1024
+  TCCR1B |= (1 << CS10) | (1 << CS12);
+
+  // Configure CTC Mode where TOP = OCR1A (!)
+  // In this case (CTC Mode), 
+  // the timer is reset to zero when it reaches the value 
+  // stored in the Output Compare Register (OCR),
+  // and then starts counting again from zero
+  TCCR1B |= (1 << WGM12);
+  
+  // Set the value for the output compare register
+  OCR1A = 125;
+
+  // Enable Timer1 compare match interrupt
+  TIMSK1 |= (1 << OCIE1A);
+
+  // Enable interrupts
+  sei();
+}
+
+// Interrupt Service Routine (ISR) for Timer1 compare match interrupt
+ISR(TIMER1_COMPA_vect)
+{
+  // Increment the timerCount variable
+  timerCount++;
+
+  // If the timerCount variable has reached 125
+  if (timerCount >= 125)
+  {
+    PORTB ^= (1 << PORTB5);
+    // Reset the timerCount variable
+    timerCount = 0;
+  }
+}
+
+void loop()
+{
+  // Nothing to do here since all timing and pin toggling is handled by the Timer1 compare match interrupt
+}

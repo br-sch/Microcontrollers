@@ -1,0 +1,27 @@
+void setup() {
+  // Initialize the Serial Monitor at 9600 baud rate
+  Serial.begin(9600);
+
+  // Set ADMUX to use AVcc as reference voltage and select ADC0 as input channel
+  ADMUX |= (1 << REFS0); 
+
+  // Set ADCSRA to enable ADC, set prescaler to 128 (16 MHz / 128 = 125 kHz ADC clock)
+  ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+}
+
+void loop() {
+  // Start ADC conversion
+  ADCSRA |= (1 << ADSC);
+
+  // Wait for conversion to complete
+  while (ADCSRA & (1 << ADSC));
+
+  // Read the converted value (10 bits) from ADCL and ADCH registers
+  uint16_t digital_value = ADC;
+
+  // Print the digital value to the Serial Monitor
+  Serial.println(digital_value);
+
+  // Wait for 500 milliseconds before the next reading
+  delay(500);
+}

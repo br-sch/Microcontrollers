@@ -1,0 +1,22 @@
+// C++ code
+//
+/*
+  This program blinks pin 13 of the Arduino (the
+  built-in LED)
+*/
+
+void setup()
+{
+  DDRB |= 0b00100000;
+}
+
+void loop()
+{
+  // turn the LED on (HIGH is the voltage level)
+  PORTB |= 0b00100000;
+  delay(1000); // Wait for 1000 millisecond(s)
+  
+  // turn the LED off by making the voltage LOW
+  PORTB &= ~0b00100000;
+  delay(1000); // Wait for 1000 millisecond(s)
+}

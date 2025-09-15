@@ -1,0 +1,35 @@
+// Define a program that should use a button to switch between LEDs.
+
+// 1. TURN GREEN LED ON & TURN RED LED OFF
+//    when button is PRESSED.
+
+// 2. TURN GREEN LED OFF & TURN RED LED ON
+//    when button is RELEASED.
+
+void setup()
+{
+  // Define pin 2 as INPUT
+  DDRD &= ~0b00000100;
+  // Define pins 12,13 as OUTPUTs
+  DDRB |= 0b00110000;
+}
+
+void loop()
+{
+  unsigned char result;
+  // Extract information about pin 2
+  // to find if button is pressed/released
+  result = PIND & 0b00000100;
+  if (result == 0) // When the button is released
+  {
+    PORTB |= 0b00100000; // Turn ON RED LED
+    PORTB &= ~0b00010000; // Turn OFF GREEN LED
+  	delay(50); // basic debouncing
+  }
+  else // When the button is pressed
+  {
+    PORTB |= 0b00010000; // Turn ON GREEN LED
+    PORTB &= ~0b00100000; // Turn OFF RED LED
+    delay(50); // basic debouncing
+  }
+}

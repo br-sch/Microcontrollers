@@ -1,0 +1,108 @@
+// State Machine (with RESET button) – using Interrupts
+
+
+unsigned int state = 0;
+
+void setup()
+{
+   cli(); // Disable global interrupts
+  
+  
+  // Set PD2 & PD3 as input
+  DDRD &= ~(1 << DDD2);
+  DDRD &= ~(1 << DDD3);
+  
+  // Set PB5,PB4 & PB3 as output
+  DDRB |= (1 << PORTB5);
+  DDRB |= (1 << PORTB4);
+  DDRB |= (1 << PORTB3);
+  
+	
+  // The button is configured with a PULL-DOWN resistor
+  
+  // Configure the interrupt trigger *accordingly*
+  // INT0
+  EICRA |= (1 << ISC00);
+  EICRA |= (1 << ISC01);
+  
+  // INT1
+  EICRA |= (1 << ISC10);
+  EICRA |= (1 << ISC11);
+
+  // Enable INT0
+  EIMSK |= (1 << INT0);
+  // Enable INT1
+  EIMSK |= (1 << INT1);
+
+  sei(); // Enable global interrupts
+}
+
+// Configure ISRs to toggle LEDs accordingly
+// The ISR will toggle the built-in LED (pin 13)
+
+ISR(INT0_vect) {
+	state += 1; // Increment state by 1
+}
+
+ISR(INT1_vect) {
+  state = 0; // Return to the initial state
+}
+
+void loop() {
+
+    
+  if (state == 8){
+      state = 0; // Return to the initial state
+}
+   
+   switch(state){
+    case 0:
+     PORTB &= ~(1 << PORTB5); // Turn OFF LED1
+     PORTB &= ~(1 << PORTB4); // Turn OFF LED2
+     PORTB &= ~(1 << PORTB3); // Turn OFF LED3
+     break;
+    case 1:
+     PORTB &= ~(1 << PORTB5); // Turn OFF LED1
+     PORTB &= ~(1 << PORTB4); // Turn OFF LED2
+     PORTB |= (1 << PORTB3); // Turn ON LED3
+     break;
+    case 2:
+     PORTB &= ~(1 << PORTB5); // Turn OFF LED1
+     PORTB &= ~(1 << PORTB3); // Turn OFF LED3
+     PORTB |= (1 << PORTB4); // Turn ON LED2
+     break;
+    case 3:
+     PORTB &= ~(1 << PORTB5); // Turn OFF LED1
+     PORTB |= (1 << PORTB4); // Turn ON LED2
+     PORTB |= (1 << PORTB3); // Turn ON LED3
+     break;
+    case 4:
+     PORTB &= ~(1 << PORTB4); // Turn OFF LED2
+     PORTB &= ~(1 << PORTB3); // Turn OFF LED3
+     PORTB |= (1 << PORTB5); // Turn ON LED1
+     break;
+    case 5:
+     PORTB &= ~(1 << PORTB4); // Turn OFF LED2
+     PORTB |= (1 << PORTB5); // Turn ON LED1
+     PORTB |= (1 << PORTB3); // Turn ON LED3
+     break;
+    case 6:
+     PORTB &= ~(1 << PORTB3); // Turn OFF LED3
+     PORTB |= (1 << PORTB5); // Turn ON LED1
+     PORTB |= (1 << PORTB4); // Turn ON LED2
+     break;
+    case 7:
+     PORTB |= (1 << PORTB5); // Turn ON LED1
+     PORTB |= (1 << PORTB4); // Turn ON LED2
+     PORTB |= (1 << PORTB3); // Turn ON LED3
+     break;
+    default:
+     // Add some code..
+     PORTB &= ~(1 << PORTB5); // Turn OFF LED1
+     PORTB &= ~(1 << PORTB4); // Turn OFF LED2
+     PORTB &= ~(1 << PORTB3); // Turn OFF LED3
+     state = 0;
+     break;
+   }   
+  
+}

@@ -1,0 +1,61 @@
+#define TIMER_PRESCALER_BITS ((1 << CS20) | (1 << CS21) | (1 << CS22))
+#define TIMER_OVERFLOW_INTERRUPT_ENABLE_BIT (1 << TOIE2)
+#define TIMER_THRESHOLD_MODE_1 61
+#define TIMER_THRESHOLD_MODE_2 123
+#define STATE_DELAY_MODE_1 30
+#define STATE_DELAY_MODE_2 15
+
+unsigned int timerCount = 0;
+unsigned int stateDelay = 0;
+unsigned int state = 0; // 0=mode1, 1=mode2
+
+void setup() {
+  // Set LED pin as an output
+  DDRB |= (1 << DDB5);
+  
+  // Disable interrupts
+  cli();
+  
+  // Clear Timer2 control registers
+  TCCR2A = 0;
+  TCCR2B = 0;
+  
+  // Set Timer2 counter value to 0
+  TCNT2 = 0;
+  
+  // Set Timer2 prescaler to 1024
+  TCCR2B |= TIMER_PRESCALER_BITS;
+  
+  // Enable Timer2 overflow interrupt
+  TIMSK2 |= TIMER_OVERFLOW_INTERRUPT_ENABLE_BIT;
+  
+  // Enable interrupts
+  sei();
+}
+
+ISR(TIMER2_OVF_vect) {
+  // Increment timerCount variable
+  timerCount++;
+
+  // Check current state (mode1 or mode2)
+  if ((state == 0 && timerCount >= TIMER_THRESHOLD_MODE_1) || (state != 0 && timerCount >= TIMER_THRESHOLD_MODE_2)) {
+    // Toggle LED state
+    PORTB ^= (1 << PORTB5);
+
+    // Reset timerCount variable
+    timerCount = 0;
+
+    // Increment stateDelay variable
+    stateDelay++;
+
+    // Check if stateDelay has reached threshold (STATE_DELAY_MODE_1 or STATE_DELAY_MODE_2) and switch state
+    if ((state == 0 && stateDelay == STATE_DELAY_MODE_1) || (state != 0 && stateDelay == STATE_DELAY_MODE_2)) {
+      state = 1 - state;
+      stateDelay = 0;
+    }
+  }
+}
+
+void loop() {
+  // Empty loop
+}

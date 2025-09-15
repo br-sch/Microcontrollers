@@ -1,0 +1,28 @@
+/*
+  Simluate Light Traffic:
+  1. Red Color for 5 seconds.
+  2. Yellow Color for 1 seconds.
+  3. Green Color for 3 seconds.
+  (then yellow, and back to red..)
+*/
+
+void setup()
+{
+  DDRB |= 0b00111000; // sets pins 13,12 & 11 as OUTPUT
+}
+
+void loop()
+{
+  PORTB &= ~0b00110000; // Sets 12,13 to LOW  
+  PORTB |= 0b00001000; // Sets 11 (RED) to HIGH
+  delay(5000);
+  PORTB &= ~0b00101000; // Sets 11,13 to LOW
+  PORTB |= 0b00010000; // Sets 12 (YELLOW) to HIGH
+  delay(1000);
+  PORTB &= ~0b00011000; // Sets 11,12 to LOW
+  PORTB |= 0b00100000; // Sets 13 (GREEN) to HIGH
+  delay(3000);
+  PORTB &= ~0b00101000; // Sets 11,13 to LOW
+  PORTB |= 0b00010000; // Sets 12 (YELLOW) to HIGH
+  delay(1000);
+}

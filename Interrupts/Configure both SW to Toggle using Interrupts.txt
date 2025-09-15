@@ -1,0 +1,66 @@
+// The following program demonstrates how interrupts are configured.
+// Configure both switches to work with interrupts.
+
+// SW1 should be configured with "Logical Change Trigger".
+// An interrupt received by SW1 should toggle GREEN LED.
+
+// SW2 should be configured with "Rising Edge".
+// An interrupt received by SW1 should toggle RED LED.
+
+
+void setup() {
+  cli(); // Disable global interrupts
+  
+  
+  // Set PD2 & PD3 as input
+  DDRD &= ~(1 << DDD2);
+  DDRD &= ~(1 << DDD3);
+  
+  // Set PB5 & PB4 as output
+  DDRB |= (1 << PORTB5);
+  DDRB |= (1 << PORTB4);
+	
+  // The button is configured with a PULL-DOWN resistor
+  
+  // Configure the interrupt trigger *accordingly*
+  // INT0
+  EICRA |= (1 << ISC00);
+  EICRA |= (0 << ISC01);
+  
+  // INT1
+  EICRA |= (1 << ISC10);
+  EICRA |= (1 << ISC11);
+
+  // Enable INT0
+  EIMSK |= (1 << INT0);
+  // Enable INT1
+  EIMSK |= (1 << INT1);
+
+  sei(); // Enable global interrupts
+}
+
+// Configure ISRs to toggle LEDs accordingly
+// The ISR will toggle the built-in LED (pin 13)
+volatile bool ledState1 = false;
+
+ISR(INT0_vect) {
+  ledState1 = !ledState1;
+  if (ledState1) {
+    PORTB |= (1 << PORTB5); // Set PB5 (pin 13) HIGH
+  } else {
+    PORTB &= ~(1 << PORTB5); // Set PB5 (pin 13) LOW
+  }
+}
+
+volatile bool ledState2 = false;
+ISR(INT1_vect) {
+  ledState2 = !ledState2;
+  if (ledState2) {
+    PORTB |= (1 << PORTB4); // Set PB5 (pin 13) HIGH
+  } else {
+    PORTB &= ~(1 << PORTB4); // Set PB5 (pin 13) LOW
+  }
+}
+void loop() {
+  // The main loop will remain empty, as the ISR will handle the LED state change
+}

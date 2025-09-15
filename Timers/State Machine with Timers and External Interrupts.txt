@@ -1,0 +1,145 @@
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+#define PIN_THREE (1 << DDB3)
+#define PIN_TWO (1 << DDB4)
+#define PIN_ONE (1 << DDB5)
+
+
+#define STATE_DURATION 250 // 125x2 = 250 (2 sec)
+
+
+enum LightState {
+  INITIAL_STATE,
+  STATE_ONE,
+  STATE_TWO,
+  STATE_THREE,
+  STATE_FOUR,
+  STATE_FIVE,
+  STATE_SIX,
+  STATE_SEVEN,
+};
+
+volatile LightState currentState = INITIAL_STATE;
+volatile uint16_t stateCounter = 0;
+
+void setup()
+{
+  // Set pins 11 (PB3), 12 (PB4), and 13 (PB5) as outputs
+  DDRB |= (1 << DDB5) | (1 << DDB4) | (1 << DDB3);
+  
+  // Set pin 2 as input
+  DDRD &= ~(1 << DDD2);
+
+  // Disable interrupts
+  cli();
+  
+  // Configure the interrupt trigger *accordingly*
+  // INT0
+  EICRA |= (1 << ISC00);
+  EICRA |= (1 << ISC01);
+  
+  // Enable INT0
+  EIMSK |= (1 << INT0);
+
+  // Clear Timer1 control registers
+  TCCR1A = 0;
+  TCCR1B = 0;
+
+  // Set Timer1 counter value to 15623 (for initial setup of Traffic Light)
+  // - to call the interrupt immediately.
+  TCNT1 = 15623;
+
+  // Set Timer1 prescaler to 1024
+  TCCR1B |= (1 << CS10) | (1 << CS12);
+
+  // Configure CTC Mode where TOP = OCR1A
+  TCCR1B |= (1 << WGM12);
+  
+  // Set the value for the output compare register
+  OCR1A = 125;
+
+  // Enable Timer1 compare match interrupt
+  TIMSK1 |= (1 << OCIE1A);
+  
+  // Enable interrupts
+  sei();
+}
+
+// Interrupt Service Routine (ISR) for Timer1 compare match interrupt
+ISR(INT0_vect) {
+	currentState = INITIAL_STATE; // Reset
+}
+
+ISR(TIMER1_COMPA_vect)
+{
+  stateCounter++;
+
+  switch (currentState) {
+    case INITIAL_STATE:
+      PORTB = (PORTB & ~(PIN_ONE | PIN_TWO | PIN_THREE));
+      if (stateCounter >= STATE_DURATION) {
+        currentState = STATE_ONE;
+        stateCounter = 0;
+      }
+      break;
+
+    case STATE_ONE:
+      PORTB = (PORTB & ~(PIN_ONE | PIN_TWO)  | PIN_THREE);
+      if (stateCounter >= STATE_DURATION) {
+        currentState = STATE_TWO;
+        stateCounter = 0;
+      }
+      break;
+
+    case STATE_TWO:
+      PORTB = (PORTB & ~(PIN_ONE | PIN_THREE)) | PIN_TWO;
+      if (stateCounter >= STATE_DURATION) {
+        currentState = STATE_THREE;
+        stateCounter = 0;
+      }
+      break;
+
+    case STATE_THREE:
+      PORTB = (PORTB & ~PIN_ONE) | PIN_TWO | PIN_THREE;
+      if (stateCounter >= STATE_DURATION) {
+        currentState = STATE_FOUR;
+        stateCounter = 0;
+      }
+      break;
+    
+    case STATE_FOUR:
+      PORTB = (PORTB & ~(PIN_TWO | PIN_THREE)) | PIN_ONE;
+      if (stateCounter >= STATE_DURATION) {
+        currentState = STATE_FIVE;
+        stateCounter = 0;
+      }
+      break;
+    case STATE_FIVE:
+      PORTB = (PORTB & ~PIN_TWO) | PIN_ONE | PIN_THREE;
+      if (stateCounter >= STATE_DURATION) {
+        currentState = STATE_SIX;
+        stateCounter = 0;
+      }
+      break;
+    case STATE_SIX:
+      PORTB = (PORTB & ~PIN_THREE) | PIN_ONE | PIN_TWO;
+      if (stateCounter >= STATE_DURATION) {
+        currentState = STATE_SEVEN;
+        stateCounter = 0;
+      }
+      break;
+    case STATE_SEVEN:
+      PORTB = PIN_ONE | PIN_TWO | PIN_THREE;
+      if (stateCounter >= STATE_DURATION) {
+        currentState = INITIAL_STATE;
+        stateCounter = 0;
+      }
+      break;
+  }
+}
+
+void loop()
+{
+  // Nothing to do here since all timing and pin toggling is handled by the Timer1 compare match interrupt
+}

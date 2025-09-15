@@ -1,0 +1,16 @@
+// C++ code
+
+
+void setup()
+{
+  DDRB |= 0b00110000; // Set Pin 13 & 12 as OUTPUT (work on DDRB)
+}
+
+void loop()
+{
+  PORTB |= 0b00110000; // Toggle Pin 13 & 12 - HIGH
+  delay(5000);
+  PORTB &= ~0b00110000; // Toggle Pin 13 & 12 - LOW
+  delay(5000);
+
+}
