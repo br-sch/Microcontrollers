@@ -42,5 +42,5 @@ This folder contains various projects and exercises for the Microcontrollers Lab
 
 
 ## Notes
-- All simulations are performed using the Tinkercad website: https://www.tinkercad.com/dashboard/activities/6ytuj0FNwc8.
+- All simulations are performed using the Tinkercad website: https://www.tinkercad.com/.
 - The Arduino UNO microcontroller is used for all exercises and projects.
