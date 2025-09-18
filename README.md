@@ -1,4 +1,4 @@
-# Microcontrollers Laboratory
+# Microcontrollers
 
 This folder contains various projects and exercises for the Microcontrollers Laboratory course. The primary focus is on using the Arduino UNO microcontroller and simulating physical components through the Tinkercad website. Below is a summary of the files and folders in this directory:
 
